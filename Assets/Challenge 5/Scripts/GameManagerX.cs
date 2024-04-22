@@ -7,47 +7,69 @@ using UnityEngine.UI;
 
 public class GameManagerX : MonoBehaviour
 {
-    public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI gameOverText;
-    public GameObject titleScreen;
-    public Button restartButton; 
+    [SerializeField] List<GameObject> targets;
+    [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] TextMeshProUGUI gameOverText;
+    [SerializeField] Button restartButton;
+    [SerializeField] GameObject TitleScreen;
 
-    public List<GameObject> targetPrefabs;
 
-    private int score;
-    private float spawnRate = 1.5f;
     public bool isGameActive;
+
+    float spawnRate = 1.5f;
+    int score;
+
+    /*
+    public GameObject titleScreen;
 
     private float spaceBetweenSquares = 2.5f; 
     private float minValueX = -3.75f; //  x value of the center of the left-most square
     private float minValueY = -3.75f; //  y value of the center of the bottom-most square
-    
+    */
     // Start the game, remove title screen, reset score, and adjust spawnRate based on difficulty button clicked
-    public void StartGame()
+    void Start()
     {
-        spawnRate /= 5;
-        isGameActive = true;
-        StartCoroutine(SpawnTarget());
-        score = 0;
-        UpdateScore(0);
-        titleScreen.SetActive(false);
+        gameOverText.gameObject.SetActive(false);
+        restartButton.gameObject.SetActive(false);
     }
 
-    // While game is active spawn a random target
+    public void StartTheGame(int difficulty)
+    {
+        spawnRate /= difficulty;
+        isGameActive = true;
+        UpdateScore(0);
+        StartCoroutine(SpawnTarget());
+        TitleScreen.gameObject.SetActive(false);
+    }
+
     IEnumerator SpawnTarget()
     {
         while (isGameActive)
         {
             yield return new WaitForSeconds(spawnRate);
-            int index = Random.Range(0, targetPrefabs.Count);
-
-            if (isGameActive)
-            {
-                Instantiate(targetPrefabs[index], RandomSpawnPosition(), targetPrefabs[index].transform.rotation);
-            }
-            
+            int index = Random.Range(0, targets.Count);
+            Instantiate(targets[index]);
         }
     }
+
+    public void UpdateScore(int scoreToAdd)
+    {
+        score += scoreToAdd;
+        scoreText.text = "Score: " + score;
+    }
+
+    public void GameOver()
+    {
+        isGameActive = false;
+        gameOverText.gameObject.SetActive(true);
+        restartButton.gameObject.SetActive(true);
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    /*
 
     // Generate a random spawn position based on a random index from 0 to 3
     Vector3 RandomSpawnPosition()
@@ -65,26 +87,6 @@ public class GameManagerX : MonoBehaviour
     {
         return Random.Range(0, 4);
     }
-
-    // Update score with value from target clicked
-    public void UpdateScore(int scoreToAdd)
-    {
-        score += scoreToAdd;
-        scoreText.text = "score";
-    }
-
-    // Stop game, bring up game over text and restart button
-    public void GameOver()
-    {
-        gameOverText.gameObject.SetActive(true);
-        restartButton.gameObject.SetActive(false);
-        isGameActive = false;
-    }
-
-    // Restart game by reloading the scene
-    public void RestartGame()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
+    
+    */
 }
